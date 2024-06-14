@@ -15,7 +15,7 @@ class Agent:
     def __init__(self, screen, grid):
         self.__grid = grid
         self.__screen = screen
-        self.__suns = 10000
+        self.__suns = 500
         self.__pos = (0,0)
         self.__plants_owned = []
         self.__plants = {0 : Peashooter(screen=screen, grid=grid, pos=self.get_pos()), 1 : Sunflower(screen=screen, grid=grid, pos=self.get_pos())}

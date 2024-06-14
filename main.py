@@ -7,7 +7,7 @@ if __name__ == '__main__':
     game.start_game()
     while True:
         rand_action = random.choice(list(AgentAction))
-        print(rand_action)
+        #print(rand_action)
 
         game.agent.perform_action(rand_action)
         game.start_game()

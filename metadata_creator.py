@@ -25,10 +25,10 @@ def generate_metadata(image_path, sprite_width, sprite_height, output_json_path)
     print(f"Metadata has been generated and saved to {output_json_path}")
 
 # Define the path to your sprite sheet image and the dimensions of each sprite
-image_path = 'assets\zombies\zombie\zombie.png'
-sprite_width = 40
-sprite_height = 60
-output_json_path = 'assets\zombies\zombie\zombie.json'
+image_path = 'assets\suns\suns_sheet.png'
+sprite_width = 28
+sprite_height = 24
+output_json_path = 'assets\suns\suns_sheet.json'
 
 # Generate metadata
 generate_metadata(image_path, sprite_width, sprite_height, output_json_path)

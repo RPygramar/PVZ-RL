@@ -10,8 +10,8 @@ window = pygame.display.set_mode(((DISPLAY_W,DISPLAY_H)))
 running = True
 ###########################################################################################
 
-my_spritesheet = SpriteSheet('assets\zombies\zombie\zombie.png')
-trainer = [pygame.transform.scale2x(my_spritesheet.parse_sprite(f'sprite{i}')) for i in range(13,20)]
+my_spritesheet = SpriteSheet('assets\suns\suns_sheet.png')
+trainer = [pygame.transform.scale2x(my_spritesheet.parse_sprite(f'sprite{i}')) for i in range(1,3)]
 
 index = 0
 
