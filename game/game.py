@@ -4,7 +4,7 @@ import sys
 from grid.grid import Grid
 from agent.agent import Agent
 
-from plants.peashooter.peashooter import Peashooter
+from game.horde import Horde
 
 class Game:
     def __init__(self, width=80*13, height=80*7, fps=60):
@@ -20,7 +20,8 @@ class Game:
 
         self.grid = Grid(screen=self.screen, cell_size=80)
         self.agent = Agent(screen=self.screen, grid=self.grid)
-        print(self.grid)
+        
+        self.horde = Horde(self.screen, self.grid)
     
     def reset(self, seed=None):
         pass
@@ -33,6 +34,8 @@ class Game:
                 pygame.quit()
                 sys.exit()
 
+        self.horde.update()
+
         self.draw()
 
         pygame.display.flip()
@@ -43,3 +46,6 @@ class Game:
         self.grid.draw()
         for plant in self.agent.get_plants_owned():
             plant.draw()
+        for zombie in self.horde.get_horde():
+            zombie.draw()
+            zombie.update()

@@ -58,28 +58,24 @@ class Agent:
             self.__pos = list(self.__pos)
             self.__pos[0] -= 1
             self.__pos = tuple(self.__pos)
-            #print(self.__pos)
 
     def move_right(self):
         if self.__pos[0] < 8:
             self.__pos = list(self.__pos)
             self.__pos[0] += 1
             self.__pos = tuple(self.__pos)
-            #print(self.__pos)
 
     def move_up(self):   
         if self.__pos[1] > 0:     
             self.__pos = list(self.__pos)
             self.__pos[1] -= 1
             self.__pos = tuple(self.__pos)
-            #print(self.__pos)
 
     def move_down(self):
         if self.__pos[1] < 4:
             self.__pos = list(self.__pos)
             self.__pos[1] += 1
             self.__pos = tuple(self.__pos)
-            #print(self.__pos)
 
     def __create_plant(self, key):
         if key == 0:
