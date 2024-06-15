@@ -61,14 +61,15 @@ class Game:
         for zombie in self.horde.get_horde():
             zombie.draw()
             zombie.update()
-        for sun in self.suns:
+        for sun in self.agent.existing_suns:
             if sun.time_to_die:
-                self.suns.remove(sun)
+                self.agent.existing_suns.remove(sun)
             sun.update()
             sun.draw()
     
     def regen_suns(self):
         current_time = time.time()
         if current_time - self.regen_time >= 7.5:
-            self.suns.append(Suns(self.screen,self.grid,(random.randint(1,9), -26)))
+            self.agent.existing_suns.append(Suns(self.screen,self.grid,(random.randint(1,9), -26)))
             self.regen_time = current_time
+            

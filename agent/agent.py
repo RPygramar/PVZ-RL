@@ -20,6 +20,8 @@ class Agent:
         self.__plants_owned = []
         self.__plants = {0 : Peashooter(screen=screen, grid=grid, pos=self.get_pos()), 1 : Sunflower(screen=screen, grid=grid, pos=self.get_pos())}
         
+        self.existing_suns = []
+        
     def perform_action(self, action:AgentAction) -> bool:
 
         self.last_action = action
@@ -82,4 +84,9 @@ class Agent:
             return Peashooter(screen=self.__screen, grid=self.__grid, pos=self.get_pos())
         elif key == 1:
             return Sunflower(screen=self.__screen, grid=self.__grid, pos=self.get_pos())
+            
+    def collect_suns(self, suns : list):
+        if suns:
+            for sun in suns:
+                self.__suns += sun.get_value()
             

@@ -16,10 +16,18 @@ class Suns(Suns_Gui):
 
         self.time_to_die = False
 
+        self.__value = 50
+
     def update(self):
         current_time = time.time()
         if current_time - self.__last_update_time <= 10:
             self.rect.y += 1
         else:
             self.time_to_die = True
+
+    def get_value(self):
+        return self.__value
+    
+    def __repr__(self) -> str:
+        return f'Sun'
         
