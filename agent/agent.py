@@ -10,16 +10,17 @@ class AgentAction(Enum):
     RIGHT=3
     PLACE_PEASHOOTER= 4
     PLACE_SUNFLOWER= 5
+    COLLECT_SUN = 6
     
 class Agent:
     def __init__(self, screen, grid):
         self.__grid = grid
         self.__screen = screen
-        self.__suns = 500
+        self.__suns = 100
         self.__pos = (0,0)
         self.__plants_owned = []
         self.__plants = {0 : Peashooter(screen=screen, grid=grid, pos=self.get_pos()), 1 : Sunflower(screen=screen, grid=grid, pos=self.get_pos())}
-        
+
         self.existing_suns = []
         
     def perform_action(self, action:AgentAction) -> bool:
@@ -38,6 +39,8 @@ class Agent:
             self.place_plant(0)
         elif action == AgentAction.PLACE_SUNFLOWER:
             self.place_plant(1)
+        elif action == AgentAction.COLLECT_SUN:
+            self.__collect_suns(suns=self.existing_suns)
 
     def get_suns(self):
         return self.__suns
@@ -79,14 +82,32 @@ class Agent:
             self.__pos[1] += 1
             self.__pos = tuple(self.__pos)
 
+    def check_shoot_peashooter(self, zombies : list):
+        for plant in self.__plants_owned:
+            if plant.name == 'peashooter':
+                if plant.line_of_shoot.collidelist(zombies) >= 0:
+                    plant.shoot()
+                for pea in plant.get_peas_shoot():
+                    if pea.rect.collidelist(zombies) >= 0:
+                        zombies[pea.rect.collidelist(zombies)].damage(pea.get_attack_damage())
+                        pea.hitted_target()
+                        print(zombies[pea.rect.collidelist(zombies)].get_health())
+                    
+    def get_all_pea_shot(self):
+        list_pea = []
+        for plant in self.__plants_owned:
+            if plant.name == 'peashooter':
+                list_pea = list_pea + plant.get_peas_shoot()
+        return list_pea
+
     def __create_plant(self, key):
         if key == 0:
             return Peashooter(screen=self.__screen, grid=self.__grid, pos=self.get_pos())
         elif key == 1:
             return Sunflower(screen=self.__screen, grid=self.__grid, pos=self.get_pos())
             
-    def collect_suns(self, suns : list):
+    def __collect_suns(self, suns : list):
         if suns:
             for sun in suns:
                 self.__suns += sun.get_value()
-            
+                self.existing_suns.remove(sun)

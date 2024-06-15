@@ -25,6 +25,9 @@ class Zombie(Zombie_Gui):
     def update(self):
         self.__walk()
 
+    def damage(self, value):
+        self.__health -= value
+
     def __walk(self):
         current_time = time.time()
         if current_time - self.__last_update_time >= 0.2:
@@ -32,4 +35,4 @@ class Zombie(Zombie_Gui):
             self.__last_update_time = current_time
     
     def __repr__(self) -> str:
-        return f'Zombie {self.__pos}'
+        return f'Zombie {self.rect}'

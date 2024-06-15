@@ -20,11 +20,13 @@ class Horde:
     def get_horde(self):
         return self.__horde
     
+    def remove_zombie(self, zombie :object):
+        self.__horde.remove(zombie)
+    
     def fill_horde(self):
         if not self.__horde:
             if not self.__n_zombies:
                 self.__n_zombies = random.randint(1,10)
-                self.__n_zombies = 30
             horde = [Zombie(self.__screen,self.__grid, pos=(10, random.randint(1,5))) for n in range(self.__n_zombies)]
             self.__n_zombies = None
             self.__horde = horde

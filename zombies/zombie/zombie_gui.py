@@ -21,3 +21,4 @@ class Zombie_Gui(pygame.sprite.Sprite):
             self.__index = (self.__index + 1) % len(self.__sprite_list)
             self.__last_update_time = current_time
         self.__screen.blit(self.__sprite_list[self.__index], (self.rect.x, self.rect.y))
+        #pygame.draw.rect(self.__screen, (255,255,255), self.rect)

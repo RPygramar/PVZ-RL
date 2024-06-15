@@ -53,12 +53,16 @@ class Game:
 
     def update(self):
         self.regen_suns()
+        self.agent.check_shoot_peashooter(self.horde.get_horde())
 
     def draw(self):
         self.grid.draw()
         for plant in self.agent.get_plants_owned():
             plant.draw()
         for zombie in self.horde.get_horde():
+            if zombie.get_health() <= 0:
+                self.horde.remove_zombie(zombie)
+                break
             zombie.draw()
             zombie.update()
         for sun in self.agent.existing_suns:
@@ -66,6 +70,8 @@ class Game:
                 self.agent.existing_suns.remove(sun)
             sun.update()
             sun.draw()
+        for pea in self.agent.get_all_pea_shot():
+            pea.draw()
     
     def regen_suns(self):
         current_time = time.time()

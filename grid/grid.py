@@ -23,6 +23,9 @@ class Grid(Grid_Gui):
 
     def is_planted(self, position):
         return self.__grid[position[0]][position[1]]
+    
+    def get_final_pos_grid(self, pos : tuple):
+        return ((self.get_cell_size()*9)) - ((pos[0] * self.get_cell_size())) 
 
     def __str__(self):
         grid = self.get_grid()

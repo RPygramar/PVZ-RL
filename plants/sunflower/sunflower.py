@@ -8,6 +8,7 @@ class Sunflower(Sunflower_Gui):
         self.__health = 300
         self.__ticks_before_attack = 24.25
         self.__sun_cost = 50
+        self.name = 'sunflower'
 
         self.__pos = pos
 
