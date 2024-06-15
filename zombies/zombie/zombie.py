@@ -10,8 +10,12 @@ class Zombie(Zombie_Gui):
         self.__ticks_before_attack = 4.7
 
         self.__last_update_time = time.time()
+
+        self.__last_eat_time = time.time()
         
         self.__pos = pos
+
+        self.__eating = False
 
     def get_health(self):
         return self.__health
@@ -29,10 +33,21 @@ class Zombie(Zombie_Gui):
         self.__health -= value
 
     def __walk(self):
+        if not self.__eating:
+            current_time = time.time()
+            if current_time - self.__last_update_time >= 0.2:
+                self.rect.x -= 4
+                self.__last_update_time = current_time
+
+    def eat_plant(self, plant:object):
+        self.__eating = True
         current_time = time.time()
-        if current_time - self.__last_update_time >= 0.2:
-            self.rect.x -= 3
-            self.__last_update_time = current_time
+        if current_time - self.__last_eat_time >= 2:
+            plant.damage(self.__attack_damage)
+            self.__last_eat_time = current_time
+    
+    def set_eating(self, boolean : bool):
+        self.__eating = boolean
     
     def __repr__(self) -> str:
         return f'Zombie {self.rect}'

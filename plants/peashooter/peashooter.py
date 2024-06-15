@@ -43,6 +43,9 @@ class Peashooter(Peashooter_Gui):
     def get_pos(self):
         return self.__pos
     
+    def damage(self, value):
+        self.__health -= value
+    
     def get_peas_shoot(self):
         for pea in self.__list_peas:
             if pea.hit_target or pea.is_ready_to_die():

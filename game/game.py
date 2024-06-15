@@ -53,29 +53,38 @@ class Game:
 
     def update(self):
         self.regen_suns()
-        self.agent.check_shoot_peashooter(self.horde.get_horde())
+        self.agent.plants_behavior(self.horde.get_horde())
+        # print(self.agent.get_suns())
 
     def draw(self):
         self.grid.draw()
         for plant in self.agent.get_plants_owned():
+            if plant.get_health() <= 0:
+                self.agent.remove_owned_plant(plant)
             plant.draw()
+
         for zombie in self.horde.get_horde():
             if zombie.get_health() <= 0:
                 self.horde.remove_zombie(zombie)
-                break
+            if zombie.rect.collidelist(self.agent.get_plants_owned()) >= 0:
+                zombie.eat_plant(self.agent.get_plants_owned()[zombie.rect.collidelist(self.agent.get_plants_owned())])
+            else:
+                zombie.set_eating(boolean=False)
             zombie.draw()
             zombie.update()
+
         for sun in self.agent.existing_suns:
             if sun.time_to_die:
                 self.agent.existing_suns.remove(sun)
             sun.update()
             sun.draw()
-        for pea in self.agent.get_all_pea_shot():
-            pea.draw()
+
+        for element in self.agent.get_all_elements():
+            element.draw()
     
     def regen_suns(self):
         current_time = time.time()
         if current_time - self.regen_time >= 7.5:
-            self.agent.existing_suns.append(Suns(self.screen,self.grid,(random.randint(1,9), -26)))
+            self.agent.existing_suns.append(Suns(self.screen,self.grid,(random.randint(1,9), -1),False))
             self.regen_time = current_time
             

@@ -26,14 +26,9 @@ class Pea_Gui(pygame.sprite.Sprite):
 
     def draw(self):
         if self.hit_target:
-            current_time = time.time()
-            if current_time - self.__last_update_time >= 0.1:
-                self.__index = (self.__index + 1) % len(self.__sprite_list)
-                self.__last_update_time = current_time
-            if self.__index >= 3:
-                self._ready_to_die = True
+            self._ready_to_die = True
         else:
-            self.rect.x += 20
+            self.rect.x += 15
         self.__screen.blit(self.__sprite_list[self.__index], (self.rect.x, self.rect.y))
     
 

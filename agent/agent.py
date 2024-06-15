@@ -16,7 +16,7 @@ class Agent:
     def __init__(self, screen, grid):
         self.__grid = grid
         self.__screen = screen
-        self.__suns = 100
+        self.__suns = 600
         self.__pos = (0,0)
         self.__plants_owned = []
         self.__plants = {0 : Peashooter(screen=screen, grid=grid, pos=self.get_pos()), 1 : Sunflower(screen=screen, grid=grid, pos=self.get_pos())}
@@ -41,7 +41,7 @@ class Agent:
             self.place_plant(1)
         elif action == AgentAction.COLLECT_SUN:
             self.__collect_suns(suns=self.existing_suns)
-
+            
     def get_suns(self):
         return self.__suns
     
@@ -82,7 +82,7 @@ class Agent:
             self.__pos[1] += 1
             self.__pos = tuple(self.__pos)
 
-    def check_shoot_peashooter(self, zombies : list):
+    def plants_behavior(self, zombies : list):
         for plant in self.__plants_owned:
             if plant.name == 'peashooter':
                 if plant.line_of_shoot.collidelist(zombies) >= 0:
@@ -91,14 +91,27 @@ class Agent:
                     if pea.rect.collidelist(zombies) >= 0:
                         zombies[pea.rect.collidelist(zombies)].damage(pea.get_attack_damage())
                         pea.hitted_target()
-                        print(zombies[pea.rect.collidelist(zombies)].get_health())
+            if plant.name == 'sunflower':
+                plant.produce_suns()
                     
-    def get_all_pea_shot(self):
-        list_pea = []
+    def get_all_elements(self):
+        list_elements = []
         for plant in self.__plants_owned:
             if plant.name == 'peashooter':
-                list_pea = list_pea + plant.get_peas_shoot()
-        return list_pea
+                list_elements = list_elements + plant.get_peas_shoot()
+
+            if plant.name == 'sunflower':
+                existing_suns_set = set(self.existing_suns)
+                new_suns = plant.get_list_suns()
+                for sun in new_suns:
+                    if sun not in existing_suns_set:
+                        self.existing_suns.append(sun)
+                        existing_suns_set.add(sun)
+                        plant.remove_sun(sun)
+        return list_elements
+
+    def remove_owned_plant(self, plant : object):
+        self.__plants_owned.remove(plant)
 
     def __create_plant(self, key):
         if key == 0:

@@ -27,7 +27,9 @@ class Peashooter_Gui(pygame.sprite.Sprite):
         if current_time - self.__last_update_time >= 0.1:
             self.__index_idle = (self.__index_idle + 1) % len(self.__sprite_list_idle)
             self.__last_update_time = current_time
+        #pygame.draw.rect(self.__screen, (255,255,255), self.rect)
         self.__screen.blit(self.__sprite_list_idle[self.__index_idle], (self.__pos[0], self.__pos[1]))
         # pygame.draw.line(self.__screen, (255, 255, 255), (self.__pos[0],self.__pos[1]+25), (self.__grid.get_final_pos_grid(),self.__pos[1]+25), 1)
-        pygame.draw.rect(self.__screen, (255,255,255), self.line_of_shoot)
+        
+        #pygame.draw.rect(self.__screen, (255,255,255), self.line_of_shoot)
 

@@ -8,8 +8,10 @@ class Zombie_Gui(pygame.sprite.Sprite):
         self.__spritesheet = SpriteSheet('assets\zombies\zombie\zombie_sheet.png')
         self.__sprite_list = [pygame.transform.scale(sprite, (int(sprite.get_width() * 1.8), int(sprite.get_height() * 1.8))) for sprite in (self.__spritesheet.parse_sprite(f'sprite{i}') for i in range(13, 20))]
         self.__index = 0
-        self.__pos = ((grid.get_start_grid_pos()) + (pos[0] * grid.get_cell_size()),-15 + grid.get_cell_size() * pos[1]+1)
-        self.rect = pygame.Rect(self.__pos[0],self.__pos[1],40*1.8,60*1.8)
+        self.rect = self.__sprite_list[0].get_rect()
+        self.__pos = ((grid.get_start_grid_pos()) + (pos[0] * grid.get_cell_size()),-15+grid.get_cell_size() * pos[1]+1)
+        self.rect = pygame.Rect(self.__pos[0]+50,self.__pos[1],self.rect.width,self.rect.height-50)
+        # self.rect = pygame.Rect(self.__pos[0],self.__pos[1],40,60)
 
         self.__grid = grid
         self.__screen = screen
@@ -20,5 +22,6 @@ class Zombie_Gui(pygame.sprite.Sprite):
         if current_time - self.__last_update_time >= 0.2:
             self.__index = (self.__index + 1) % len(self.__sprite_list)
             self.__last_update_time = current_time
-        self.__screen.blit(self.__sprite_list[self.__index], (self.rect.x, self.rect.y))
         #pygame.draw.rect(self.__screen, (255,255,255), self.rect)
+        self.__screen.blit(self.__sprite_list[self.__index], (self.rect.x, self.rect.y))
+        

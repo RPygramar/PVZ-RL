@@ -8,7 +8,7 @@ class Suns_Gui(pygame.sprite.Sprite):
         self.__spritesheet = SpriteSheet('assets\suns\suns_sheet.png')
         self.__sprite_list = [pygame.transform.scale(sprite, (int(sprite.get_width() * 1.8), int(sprite.get_height() * 1.8))) for sprite in (self.__spritesheet.parse_sprite(f'sprite{i}') for i in range(1, 3))]
         self.__index = 0
-        self.__pos = ((grid.get_start_grid_pos()) + (pos[0] * grid.get_cell_size()) - grid.get_cell_size(),-20)
+        self.__pos = ((grid.get_start_grid_pos()) + (pos[0] * grid.get_cell_size()) - grid.get_cell_size(),grid.get_cell_size() + grid.get_cell_size() * pos[1]+1)
         self.rect = pygame.Rect(self.__pos[0],self.__pos[1],40*1.8,60*1.8)
 
         self.__grid = grid
