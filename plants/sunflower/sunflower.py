@@ -47,5 +47,8 @@ class Sunflower(Sunflower_Gui):
     def damage(self, value):
         self.__health -= value
 
+    def get_pos(self):
+        return self.__pos
+
     def __repr__(self) -> str:
         return f'Sunflower {self.__pos}'

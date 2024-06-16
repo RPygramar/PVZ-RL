@@ -27,6 +27,9 @@ class Grid(Grid_Gui):
     def get_final_pos_grid(self, pos : tuple):
         return ((self.get_cell_size()*9)) - ((pos[0] * self.get_cell_size())) 
 
+    def remove_from_grid(self, pos):
+        self.__grid[pos[0]][pos[1]] = None
+
     def __str__(self):
         grid = self.get_grid()
         return '\n'.join([' '.join(map(str, row)) for row in grid])

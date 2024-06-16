@@ -31,7 +31,14 @@ class Game:
         self.suns = []
     
     def reset(self, seed=None):
-        pass
+        self.grid = Grid(screen=self.screen, cell_size=80)
+        self.agent = Agent(screen=self.screen, grid=self.grid)
+        
+        self.horde = Horde(self.screen, self.grid)
+
+        self.regen_time = time.time()
+
+        self.suns = []
 
     def start_game(self):
         self.screen.fill(self.background)
@@ -54,20 +61,23 @@ class Game:
     def update(self):
         self.regen_suns()
         self.agent.plants_behavior(self.horde.get_horde())
-        # print(self.agent.get_suns())
+        self.agent.remove_dead_plants()
+        if self.check_zombies_reached_limit():
+            self.reset()
+        
 
     def draw(self):
         self.grid.draw()
         for plant in self.agent.get_plants_owned():
-            if plant.get_health() <= 0:
-                self.agent.remove_owned_plant(plant)
             plant.draw()
 
         for zombie in self.horde.get_horde():
             if zombie.get_health() <= 0:
                 self.horde.remove_zombie(zombie)
+                self.agent.add_zombies_killed(zombie=zombie)
             if zombie.rect.collidelist(self.agent.get_plants_owned()) >= 0:
                 zombie.eat_plant(self.agent.get_plants_owned()[zombie.rect.collidelist(self.agent.get_plants_owned())])
+                # print(self.agent.get_plants_owned()[zombie.rect.collidelist(self.agent.get_plants_owned())].get_health())
             else:
                 zombie.set_eating(boolean=False)
             zombie.draw()
@@ -87,4 +97,10 @@ class Game:
         if current_time - self.regen_time >= 7.5:
             self.agent.existing_suns.append(Suns(self.screen,self.grid,(random.randint(1,9), -1),False))
             self.regen_time = current_time
+
+    def check_zombies_reached_limit(self):
+        for zombie in self.horde.get_horde():
+            if zombie.rect.right <= 0:
+                return True
+        return False
             
