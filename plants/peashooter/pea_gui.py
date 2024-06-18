@@ -5,7 +5,7 @@ from spritesheet.spritesheet import SpriteSheet
 
 class Pea_Gui(pygame.sprite.Sprite):
     def __init__(self, screen, grid, pos) -> None:
-        self.__spritesheet = SpriteSheet('assets\plants\peashooter\peashooter_sheet.png')
+        self.__spritesheet = SpriteSheet('assets/plants/peashooter/peashooter_sheet.png')
         self.__sprite_list = [pygame.transform.scale2x(self.__spritesheet.parse_sprite(f'sprite{i}')) for i in range(13,15+1)]
         self.__index = 0
 

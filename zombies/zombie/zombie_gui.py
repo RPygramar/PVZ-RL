@@ -5,7 +5,7 @@ from spritesheet.spritesheet import SpriteSheet
 
 class Zombie_Gui(pygame.sprite.Sprite):
     def __init__(self, screen, grid, pos) -> None:
-        self.__spritesheet = SpriteSheet('assets\zombies\zombie\zombie_sheet.png')
+        self.__spritesheet = SpriteSheet('assets/zombies/zombie/zombie_sheet.png')
         self.__sprite_list = [pygame.transform.scale(sprite, (int(sprite.get_width() * 1.8), int(sprite.get_height() * 1.8))) for sprite in (self.__spritesheet.parse_sprite(f'sprite{i}') for i in range(13, 20))]
         self.__index = 0
         self.rect = self.__sprite_list[0].get_rect()
