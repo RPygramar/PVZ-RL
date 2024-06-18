@@ -28,10 +28,12 @@ class GameEnv(gym.Env):
 
         self.action_space = spaces.Discrete(len(AgentAction))
 
+        # How does your observation look like?? [plants_owned, suns, pos_x, pos_y, zombies_killed]
         self.observation_space = spaces.Box(
-            low=0,
-            high=np.array([9*5,2000,9*5,1000]),
-            shape=(4,),
+            # high and low should be of the same type!
+            low=np.zeros(5),
+            high=np.array([9*5, 2000, 9*5, 9*5, 1000]),
+            shape=(5,),
             dtype=np.int32
             )
         print(self.observation_space)
@@ -45,13 +47,23 @@ class GameEnv(gym.Env):
         suns = self.pvz_game.agent.get_suns()
         pos = self.pvz_game.agent.get_pos()
         zombies_killed = self.pvz_game.agent.get_zombies_killed()
-
+        
+        # plants owned should atleast return a value
         plants_owned = np.array(self.encode_plants(self.pvz_game.agent.get_plants_owned()), dtype=np.int32)
+        print(f"encode: {self.encode_plants(self.pvz_game.agent.get_plants_owned())}")
+        print(f"plants :{plants_owned}")
         suns = np.array([self.pvz_game.agent.get_suns()], dtype=np.int32)
-        pos = np.array(self.pvz_game.agent.get_pos(), dtype=np.int32)
-        zombies_killed = np.array([len(self.pvz_game.agent.get_zombies_killed())], dtype=np.int32)
 
+        # Try to get the pos as [pos_x, pos_y]
+        pos = np.array(self.pvz_game.agent.get_pos(), dtype=np.int32)
+        print(f"pos: {np.array(self.pvz_game.agent.get_pos())}")
+        zombies_killed = np.array([len(self.pvz_game.agent.get_zombies_killed())], dtype=np.int32)
+        print(f"zombies : {zombies_killed}")
+
+        print(plants_owned, suns, pos, zombies_killed)
+        # the obs should be an array, and here plants owned is not even concatenated as there's no number returned
         obs = np.concatenate((plants_owned, suns, pos, zombies_killed))
+        # obs = np.array((plants_owned, suns, pos, zombies_killed))
         print('obs: ',obs)
         info = {}
 
@@ -61,7 +73,7 @@ class GameEnv(gym.Env):
         return obs, info
     
     def step(self, action):
-        super().step()
+        # super().step()
         action = self.pvz_game.agent.perform_action(AgentAction(action))
 
         reward = 0
