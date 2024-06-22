@@ -129,11 +129,11 @@ class GameEnv(gym.Env):
         if new_plants_owned < initial_plants_owned:
             reward -= (initial_plants_owned - new_plants_owned) * 20  # Penalty for plant deaths
             
-        # print('reward: ',reward)
+        print('reward: ',reward)
         obs = {"board": board, "suns": suns}
         info = {}
         if self.render_mode == 'human':
-            pass
+            self.render()
             # print(AgentAction(action))
         return obs, reward, terminated, False, info
     
