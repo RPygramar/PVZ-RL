@@ -19,7 +19,7 @@ class Agent:
         self.__suns = 100
         self.__pos = (0,0)
         self.__plants_owned = []
-        self.__plants = {0 : Peashooter(screen=screen, grid=grid, pos=self.get_pos()), 1 : Sunflower(screen=screen, grid=grid, pos=self.get_pos())}
+        self.__plants = {0 : Peashooter(screen=screen, grid=grid, pos=(-1,-1)), 1 : Sunflower(screen=screen, grid=grid, pos=(-1,-1))}
 
         self.existing_suns = []
 
@@ -95,13 +95,13 @@ class Agent:
         for plant in self.__plants_owned:
             if plant.name == 'peashooter':
                 if plant.line_of_shoot.collidelist(zombies) >= 0:
-                    plant.shoot()
+                    plant.action()
                 for pea in plant.get_peas_shoot():
                     if pea.rect.collidelist(zombies) >= 0:
                         zombies[pea.rect.collidelist(zombies)].damage(pea.get_attack_damage())
                         pea.hitted_target()
             if plant.name == 'sunflower':
-                plant.produce_suns()
+                plant.action()
                     
     def get_all_elements(self):
         list_elements = []

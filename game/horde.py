@@ -2,7 +2,7 @@ import pygame
 import time
 import random
 
-from zombies.zombie.zombie import Zombie
+from zombies.zombie_normal.zombie_normal import Zombie_Normal
 
 class Horde:
     def __init__(self, screen, grid):
@@ -27,6 +27,6 @@ class Horde:
             if not self.__n_zombies:
                 self.__n_zombies = random.randint(1,5)
                 # self.__n_zombies = 1
-            horde = [Zombie(self.__screen,self.__grid, pos=(10, random.randint(1,5))) for n in range(self.__n_zombies)]
+            horde = [Zombie_Normal(self.__screen,self.__grid, pos=(10, random.randint(1,5))) for n in range(self.__n_zombies)]
             self.__n_zombies = None
             self.__horde = horde
