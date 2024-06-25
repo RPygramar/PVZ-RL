@@ -40,7 +40,7 @@ class Zombie(Zombie_Gui):
     def __walk(self):
         if not self.__eating:
             current_time = pygame.time.get_ticks()
-            print(current_time)
+            # print(current_time)
             # print(current_time - self.__last_update_time)
             if current_time - self.__last_update_time >= 200:
                 self.rect.x -= 4
