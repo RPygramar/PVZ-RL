@@ -10,7 +10,6 @@ class Horde:
         self.__grid = grid
 
         self.__horde = []
-        self.__last_update_time = time.time()
 
         self.__n_zombies = None
 
@@ -26,7 +25,7 @@ class Horde:
     def fill_horde(self):
         if not self.__horde:
             if not self.__n_zombies:
-                self.__n_zombies = random.randint(1,15)
+                self.__n_zombies = random.randint(1,5)
                 # self.__n_zombies = 1
             horde = [Zombie(self.__screen,self.__grid, pos=(10, random.randint(1,5))) for n in range(self.__n_zombies)]
             self.__n_zombies = None

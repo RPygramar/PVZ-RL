@@ -2,68 +2,73 @@ import gymnasium as gym
 import numpy as np
 import matplotlib.pyplot as plt
 import random
-import pickle
+import pickle as pkl
 import os
 import pvz_env
 
+def convert_state(state):
+    """ Convert state representation to a hashable type (tuples). """
+    board = tuple(map(tuple, state['board']))
+    position = tuple(map(tuple, state['position']))
+    suns = tuple(state['suns'])
+    return ('board', board), ('position', position), ('suns', suns)
+
 def run_q(episodes, is_training=True, render=False):
     env = gym.make('pvz-rl', render_mode='human' if render else None)
-
-    if(is_training):
-        # q = np.zeros((801,801,100,100,env.action_space.n),dtype=np.int8)
-        obs_space_shape = env.observation_space.shape
-        # q = np.zeros(obs_space_shape + (env.action_space.n,), dtype=np.float64)
-        q = np.zeros((0,0,0,0, env.action_space.n),dtype=np.float64)
-    else:
-        f = open('output_model/pvz-rl.pkl','rb')
-        q = pickle.load(f)
-        f.close()
     
-    learning_rate_a = 0.9
-    discount_factor_g = 0.9
+    action_space = env.action_space.n
+
+    q_table = {}
+
+    if not is_training:
+        with open('output_model/pvz-rl.pkl', 'rb') as f:
+            q_table = pkl.load(f)
+
+    learning_rate = 0.9
+    discount_factor = 0.9
     epsilon = 1
 
     steps_per_episode = np.zeros(episodes)
 
-    step_count = 0
-    for i in range(episodes):
+    for episode in range(episodes):
         if render:
-            print(f'Episode {i}')
-        
-        state = env.reset()[0]
+            # print(f'---- EPISODE {episode + 1} ----')
+            pass
+
+        state, _ = env.reset()
+        state = convert_state(state)
         terminated = False
+        step_count = 0
+        total_reward = 0
 
         while not terminated:
-            
+            step_count += 1
+
             if is_training and random.random() < epsilon:
                 action = env.action_space.sample()
             else:
-                q_state_idx = tuple(state)
+                action = np.argmax(q_table.get(state, np.zeros(action_space)))
 
-                action = np.argmax(q[q_state_idx])
-            
             new_state, reward, terminated, _, _ = env.step(action)
-
-            q_state_action_idx = tuple(state) + (action,)
-
-            q_new_state_idx = tuple(new_state)
-            print(q_state_action_idx)
+            new_state = convert_state(new_state)
+            
             if is_training:
-                q[q_state_action_idx] = q[q_state_action_idx] + learning_rate_a * (
-                    reward + discount_factor_g + np.max(q[q_new_state_idx]) - q[q_state_action_idx]
-                )
-
+                best_next_action = np.max(q_table.get(new_state, np.zeros(action_space)))
+                td_target = reward + discount_factor * best_next_action
+                td_error = td_target - q_table.get(state + (action,), 0.0)
+                q_table[state + (action,)] = q_table.get(state + (action,), 0.0) + learning_rate * td_error
+                
             state = new_state
-
-            step_count += 1
+            total_reward += reward
 
             if terminated:
-                steps_per_episode[i] = step_count
-                step_count = 0
+                print(f'---- EPISODE {episode + 1} ----')
+                print('total_reward: ', total_reward)
+                print('Epsilon: ',epsilon)
+                steps_per_episode[episode] = step_count
 
-        # Decrease epsilon
         epsilon = max(epsilon - 1/episodes, 0)
-
+    
     env.close()
 
     # Graph steps
@@ -75,10 +80,9 @@ def run_q(episodes, is_training=True, render=False):
 
     if is_training:
         # Save Q Table
-        f = open("output_model/pvz-rl.pkl","wb")
-        pickle.dump(q, f)
-        f.close()
-    
+        with open("output_model/pvz-rl.pkl", "wb") as f:
+            pkl.dump(q_table, f)
+
 if __name__ == '__main__':
-    run_q(1000, is_training=True, render=False)
+    run_q(1000, is_training=True, render=True)
     run_q(1, is_training=False, render=True)

@@ -14,7 +14,7 @@ register(
 
 class GameEnv(gym.Env):
 
-    metadata = {"render_modes": ["human"], 'render_fps': 30}
+    metadata = {"render_modes": ["human"], 'render_fps': 200}
 
     def __init__(self, grid_rows=10, grid_cols=6, render_mode=None):
 
@@ -29,40 +29,50 @@ class GameEnv(gym.Env):
         self.action_space = spaces.Discrete(len(AgentAction))
 
         self.observation_space = spaces.Dict({
-            "board": spaces.Box(low=0, high=3, shape=(10, 5), dtype=np.int32),
+            "board": spaces.Box(low=0, high=3, shape=(10, 6), dtype=np.int32),
+            "position": spaces.Box(low=0, high=1, shape=(9,5), dtype=np.int32),
             "suns": spaces.Box(low=0, high=2000, dtype=np.int32)
         })
 
-        print(self.observation_space)
+        # print(self.observation_space)
 
     def reset(self, seed=None, options=None):
         super().reset(seed=seed)
 
         self.pvz_game.reset(seed=seed)
 
-        board = self.encode_board()
-        suns = np.array([self.pvz_game.agent.get_suns()], dtype=np.int32)
+        self.zombies_killed_counter = 0
 
-        obs = {"board": board, "suns": suns}
+        board = self.encode_board()
+        suns = [self.pvz_game.agent.get_suns()]
+        pos = self.encode_pos_agent()
+
+        obs = {"board": board, "position" : pos, "suns": suns}
         info = {}
 
         if self.render_mode == 'human':
             self.render()
-
+        # print('obs: ', obs)
         return obs, info
     
     def step(self, action):
-        # super().step()
+        # super().step(action)
         action = self.pvz_game.agent.perform_action(AgentAction(action))
 
         board = self.encode_board()
-        suns = np.array([self.pvz_game.agent.get_suns()], dtype=np.int32)
+        suns = [self.pvz_game.agent.get_suns()]
+        pos = self.encode_pos_agent()
 
         reward = 0
         terminated = False
         if self.pvz_game.check_zombies_reached_limit():
             reward -= 1000
             terminated = True
+            print(board)
+        if self.pvz_game.agent.get_suns() >= 2000:
+            terminated = True
+            print(board)
+        
         if action == AgentAction.UP.value:
             initial_pos = self.pvz_game.agent.get_pos()
             self.pvz_game.agent.move_up()
@@ -129,8 +139,9 @@ class GameEnv(gym.Env):
         if new_plants_owned < initial_plants_owned:
             reward -= (initial_plants_owned - new_plants_owned) * 20  # Penalty for plant deaths
             
-        print('reward: ',reward)
-        obs = {"board": board, "suns": suns}
+        #print('reward: ',reward)
+        # print(board)
+        obs = {"board": board, "position": pos, "suns": suns}
         info = {}
         if self.render_mode == 'human':
             self.render()
@@ -158,13 +169,19 @@ class GameEnv(gym.Env):
         for zombie in self.pvz_game.horde.get_horde():
             x, y = zombie.get_pos()
             board[x, y] = 3
-        return board
+        return board.tolist()
+    
+    def encode_pos_agent(self):
+        board = np.zeros((self.grid_rows-1, self.grid_cols-1), dtype=np.int32)
+        x, y = self.pvz_game.agent.get_pos()
+        board[x, y] = 1
+        return board.tolist()
     
 if __name__ == '__main__':
     env = gym.make('pvz-rl', render_mode='human')
 
     # print('Environment Begin')
-    # check_env(env.unwrapped)
+    check_env(env.unwrapped)
     # print('Environment End')
 
     obs = env.reset()[0]

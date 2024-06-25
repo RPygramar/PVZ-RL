@@ -1,5 +1,4 @@
 import pygame
-import time
 
 from spritesheet.spritesheet import SpriteSheet
 
@@ -16,15 +15,15 @@ class Peashooter_Gui(pygame.sprite.Sprite):
         self.__screen = screen
         self.__pos_in_grid = pos
         self.__pos = ((grid.get_start_grid_pos()) + (pos[0] * grid.get_cell_size()),grid.get_cell_size() + grid.get_cell_size() * pos[1]+1)
-        self.__last_update_time = time.time()
+        self.__last_update_time = pygame.time.get_ticks()
 
         self.rect = pygame.Rect(self.__pos[0],self.__pos[1],self.rect.width,self.rect.height)
 
         self.line_of_shoot = pygame.Rect(self.__pos[0], self.rect.centery, grid.get_final_pos_grid(pos), 1)
 
     def draw(self):
-        current_time = time.time()
-        if current_time - self.__last_update_time >= 0.1:
+        current_time = pygame.time.get_ticks()
+        if current_time - self.__last_update_time >= 100:
             self.__index_idle = (self.__index_idle + 1) % len(self.__sprite_list_idle)
             self.__last_update_time = current_time
         #pygame.draw.rect(self.__screen, (255,255,255), self.rect)

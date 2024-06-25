@@ -1,5 +1,4 @@
 import pygame
-import time
 
 from plants.peashooter.peashooter_gui import Peashooter_Gui
 from plants.peashooter.pea import Pea
@@ -10,7 +9,7 @@ class Peashooter(Peashooter_Gui):
         super().__init__(screen, grid, pos)
         self.__health = 300
         self.__attack_damage = 20
-        self.__ticks_before_attack = 1.4
+        self.__ticks_before_attack = 1400
         self.__sun_cost = 100
         self.name = 'peashooter'
 
@@ -18,7 +17,7 @@ class Peashooter(Peashooter_Gui):
         self.__grid = grid
         self.__pos = pos
 
-        self.__last_shot_time = time.time()
+        self.__last_shot_time = pygame.time.get_ticks()
 
         self.__list_peas = []
 
@@ -35,7 +34,7 @@ class Peashooter(Peashooter_Gui):
         return self.__sun_cost
     
     def shoot(self):
-        current_time = time.time()
+        current_time = pygame.time.get_ticks()
         if current_time - self.__last_shot_time >= self.__ticks_before_attack:
             self.__last_shot_time = current_time
             self.__list_peas.append(Pea(self.__screen, self.__grid,self.__pos))

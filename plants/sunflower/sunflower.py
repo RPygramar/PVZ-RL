@@ -1,5 +1,4 @@
 import pygame
-import time
 
 from plants.sunflower.sunflower_gui import Sunflower_Gui
 from suns.suns import Suns
@@ -8,7 +7,7 @@ class Sunflower(Sunflower_Gui):
     def __init__(self, screen, grid, pos):
         super().__init__(screen, grid, pos)
         self.__health = 300
-        self.__ticks_before_attack = 24.25
+        self.__ticks_before_attack = 24250
         self.__sun_cost = 50
         self.name = 'sunflower'
 
@@ -16,7 +15,7 @@ class Sunflower(Sunflower_Gui):
         self.__grid = grid
         self.__pos = pos
 
-        self.__last_sunproduced_time = time.time()
+        self.__last_sunproduced_time = pygame.time.get_ticks()
 
         self.__list_suns = []
 
@@ -33,8 +32,8 @@ class Sunflower(Sunflower_Gui):
         return self.__sun_cost
     
     def produce_suns(self):
-        current_time = time.time()
-        if current_time - self.__last_sunproduced_time >= 24.25:
+        current_time = pygame.time.get_ticks()
+        if current_time - self.__last_sunproduced_time >= self.__ticks_before_attack:
             self.__last_sunproduced_time = current_time
             self.__list_suns.append(Suns(self.__screen, self.__grid,(self.__pos[0]+1,self.__pos[1]),True))
     

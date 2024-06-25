@@ -26,7 +26,7 @@ class Game:
         
         self.horde = Horde(self.screen, self.grid)
 
-        self.regen_time = time.time()
+        self.regen_time = pygame.time.get_ticks()
 
         self.suns = []
     
@@ -36,7 +36,7 @@ class Game:
         
         self.horde = Horde(self.screen, self.grid)
 
-        self.regen_time = time.time()
+        self.regen_time = 0
 
         self.suns = []
 
@@ -56,7 +56,10 @@ class Game:
 
         pygame.display.flip()
 
+        # pygame.display.update()
+
         self.clock.tick(self.fps)
+        # print(self.fps)
 
     def update(self):
         self.regen_suns()
@@ -94,7 +97,7 @@ class Game:
     
     def regen_suns(self):
         current_time = time.time()
-        if current_time - self.regen_time >= 7.5:
+        if current_time - self.regen_time >= 7500:
             self.agent.existing_suns.append(Suns(self.screen,self.grid,(random.randint(1,9), -1),False))
             self.regen_time = current_time
 
