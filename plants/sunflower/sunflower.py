@@ -5,7 +5,7 @@ from suns.suns import Suns
 from plants.plant import Plant
 
 class Sunflower(Plant, Sunflower_Gui):
-    def __init__(self, screen, grid, pos):
+    def __init__(self, screen, grid, pos, framerate=60):
         super().__init__(screen, grid, pos)
         self.__health = 300
         self.__ticks_before_attack = 24250
@@ -15,8 +15,10 @@ class Sunflower(Plant, Sunflower_Gui):
         self.__screen = screen
         self.__grid = grid
         self.__pos = pos
+        self.__framerate = framerate
 
-        self.__last_sunproduced_time = pygame.time.get_ticks()
+        self.__ticks_before_production = 24250  # example value, set as needed
+        self.__accumulated_time = 0
 
         self.__list_suns = []
 
@@ -35,11 +37,11 @@ class Sunflower(Plant, Sunflower_Gui):
     def get_sun_cost(self):
         return self.__sun_cost
     
-    def action(self):
-        current_time = pygame.time.get_ticks()
-        if current_time - self.__last_sunproduced_time >= self.__ticks_before_attack:
-            self.__last_sunproduced_time = current_time
-            self.__list_suns.append(Suns(self.__screen, self.__grid,(self.__pos[0]+1,self.__pos[1]),True))
+    def action(self, delta_time):
+        self.__accumulated_time += delta_time * self.__framerate  # Scale delta time to make actions 60 times faster
+        if self.__accumulated_time >= self.__ticks_before_production / self.__framerate:
+            self.__accumulated_time -= self.__ticks_before_production
+            self.__list_suns.append(Suns(self.__screen, self.__grid, (self.__pos[0] + 1, self.__pos[1]), True))
 
     def damage(self, value):
         self.__health -= value

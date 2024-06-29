@@ -14,9 +14,9 @@ register(
 
 class GameEnv(gym.Env):
 
-    metadata = {"render_modes": ["human"], 'render_fps': 200}
+    metadata = {"render_modes": ["human"], 'render_fps': 144}
 
-    def __init__(self, grid_rows=10, grid_cols=6, render_mode=None):
+    def __init__(self, grid_rows=10, grid_cols=5, render_mode=None):
 
         self.zombies_killed_counter = 0
 
@@ -29,9 +29,9 @@ class GameEnv(gym.Env):
         self.action_space = spaces.Discrete(len(AgentAction))
 
         self.observation_space = spaces.Dict({
-            "board": spaces.Box(low=0, high=3, shape=(10, 6), dtype=np.int32),
-            "position": spaces.Box(low=0, high=1, shape=(9,5), dtype=np.int32),
-            "suns": spaces.Box(low=0, high=2000, dtype=np.int32)
+            "board": spaces.Box(low=0, high=3, shape=(10, 5), dtype=np.int32),
+            #"position": spaces.Box(low=0, high=1, shape=(9,5), dtype=np.int32)
+            #"suns": spaces.Box(low=0, high=np.inf, dtype=np.int32)
         })
 
         # print(self.observation_space)
@@ -44,10 +44,10 @@ class GameEnv(gym.Env):
         self.zombies_killed_counter = 0
 
         board = self.encode_board()
-        suns = [self.pvz_game.agent.get_suns()]
-        pos = self.encode_pos_agent()
+        # suns = [self.pvz_game.agent.get_suns()]
+        # pos = self.encode_pos_agent()
 
-        obs = {"board": board, "position" : pos, "suns": suns}
+        obs = {"board": board}#, "position" : pos}#, "suns": suns}
         info = {}
 
         if self.render_mode == 'human':
@@ -60,65 +60,79 @@ class GameEnv(gym.Env):
         action = self.pvz_game.agent.perform_action(AgentAction(action))
 
         board = self.encode_board()
-        suns = [self.pvz_game.agent.get_suns()]
-        pos = self.encode_pos_agent()
+        # suns = [self.pvz_game.agent.get_suns()]
+        # pos = self.encode_pos_agent()
 
         reward = 0
         terminated = False
         if self.pvz_game.check_zombies_reached_limit():
-            reward -= 1000
+            reward -= 100
             terminated = True
-            print(board)
-        if self.pvz_game.agent.get_suns() >= 2000:
+            #print(self.pvz_game.agent.get_pos())
+            #print(board)
+            self.zombies_killed_counter = 0
+            #print(board)
+        if self.pvz_game.agent.get_suns() >= 10000:
+            reward += 100
             terminated = True
-            print(board)
+            #print(self.pvz_game.agent.get_pos())
+            self.zombies_killed_counter = 0
+            #print(board)
+        
+        if self.zombies_killed_counter >= 100:
+            reward += 100
+            terminated = True
         
         if action == AgentAction.UP.value:
             initial_pos = self.pvz_game.agent.get_pos()
             self.pvz_game.agent.move_up()
             if initial_pos != self.pvz_game.agent.get_pos():
-                reward += 1  # Reward for moving up
+                reward += 0  # Reward for moving up
             else:
                 reward -= 5
         elif action == AgentAction.DOWN.value:
             initial_pos = self.pvz_game.agent.get_pos()
             self.pvz_game.agent.move_down()
             if initial_pos != self.pvz_game.agent.get_pos():
-                reward += 1  # Reward for moving down
+                reward += 0  # Reward for moving down
             else:
                 reward -= 5
         elif action == AgentAction.LEFT.value:
             initial_pos = self.pvz_game.agent.get_pos()
             self.pvz_game.agent.move_left()
             if initial_pos != self.pvz_game.agent.get_pos():
-                reward += 1  # Reward for moving left
+                reward += 0  # Reward for moving left
             else:
-                               reward -= 5
+                reward -= 5
         elif action == AgentAction.RIGHT.value:
             initial_pos = self.pvz_game.agent.get_pos()
             self.pvz_game.agent.move_right()
             if initial_pos != self.pvz_game.agent.get_pos():
-                reward += 1  # Reward for moving right
+                reward += 0  # Reward for moving right
             else:
                 reward -= 5
         elif action == AgentAction.PLACE_PEASHOOTER.value:
             distance_to_zombies = self.pvz_game.agent.get_pos()
-            initial_plants_owned = len(self.pvz_game.agent.get_plants_owned())
             self.pvz_game.agent.place_plant(0)
-            new_plants_owned = len(self.pvz_game.agent.get_plants_owned()) - initial_plants_owned
-            if new_plants_owned > 0 :
-                reward += (15 - (distance_to_zombies[0] * 2))  # Reward for placing a Peashooter
+            plant = self.pvz_game.agent.get_plants_owned()[-1]
+            new_plants_owned = self.pvz_game.agent.final_plants_value - self.pvz_game.agent.initial_plants_value
+            if new_plants_owned > 0 and (3 == board[-1][plant.get_pos()[1]]):
+                reward += (25 - (distance_to_zombies[0] * 2))  # Reward for placing a Peashooter
+                # print(distance_to_zombies, reward)
+                # print('reward peashooter: ',reward)
             else:
-                reward -= 10
-        elif action == AgentAction.PLACE_SUNFLOWER.value:
-            distance_to_zombies = self.pvz_game.agent.get_pos()
-            initial_plants_owned = len(self.pvz_game.agent.get_plants_owned())
-            self.pvz_game.agent.place_plant(1)
-            new_plants_owned = len(self.pvz_game.agent.get_plants_owned()) - initial_plants_owned
-            if new_plants_owned > 0:
-                reward += (10 - (distance_to_zombies[0] * 2))  # Reward for placing a Sunflower
-            else:
-                reward -= 5
+                reward -= 3
+        # elif action == AgentAction.PLACE_SUNFLOWER.value:
+        #     distance_to_zombies = self.pvz_game.agent.get_pos()
+        #     self.pvz_game.agent.place_plant(1)
+        #     plant = self.pvz_game.agent.get_plants_owned()[-1]
+        #     new_plants_owned = self.pvz_game.agent.final_plants_value - self.pvz_game.agent.initial_plants_value
+        #     if new_plants_owned > 0 and not (3 == board[-1][plant.get_pos()[1]]):
+        #         reward += (5 - (distance_to_zombies[0] * 2))  # Reward for placing a Sunflower
+        #         # print('reward sunflower: ',reward)
+        #     else:
+        #         reward -= 3
+
         elif action == AgentAction.COLLECT_SUN.value:
             initial_suns = self.pvz_game.agent.get_suns()
             self.pvz_game.agent.perform_action(AgentAction.COLLECT_SUN)
@@ -131,17 +145,18 @@ class GameEnv(gym.Env):
         new_zombies_killed = len(self.pvz_game.agent.get_zombies_killed()) - self.zombies_killed_counter
         if new_zombies_killed > 0:
             self.zombies_killed_counter = new_zombies_killed
-            reward += new_zombies_killed * 20  # Reward for each zombie killed
+            reward += new_zombies_killed * 2  # Reward for each zombie killed
+        print('zombies: ',new_zombies_killed)
         #  Check for dead plants and adjust reward if necessary
-        initial_plants_owned = len(self.pvz_game.agent.get_plants_owned())
-        self.pvz_game.agent.remove_dead_plants()
-        new_plants_owned = len(self.pvz_game.agent.get_plants_owned())
-        if new_plants_owned < initial_plants_owned:
-            reward -= (initial_plants_owned - new_plants_owned) * 20  # Penalty for plant deaths
+        # initial_plants_owned = self.pvz_game.agent.initial_plants_value
+        # self.pvz_game.agent.remove_dead_plants()
+        # new_plants_owned = self.pvz_game.agent.final_plants_value
+        # if new_plants_owned < initial_plants_owned:
+        #     reward -= (initial_plants_owned - new_plants_owned) * 10  # Penalty for plant deaths
             
-        #print('reward: ',reward)
+        # print('reward: ',reward)
         # print(board)
-        obs = {"board": board, "position": pos, "suns": suns}
+        obs = {"board": board}#, "position": pos}#, "suns": suns}
         info = {}
         if self.render_mode == 'human':
             self.render()
@@ -160,6 +175,7 @@ class GameEnv(gym.Env):
     
     def encode_board(self):
         board = np.zeros((self.grid_rows, self.grid_cols), dtype=np.int32)
+        # print(board)
         for plant in self.pvz_game.agent.get_plants_owned():
             x, y = plant.get_pos()
             if type(plant).__name__ == "Peashooter":
@@ -168,7 +184,9 @@ class GameEnv(gym.Env):
                 board[x, y] = 2
         for zombie in self.pvz_game.horde.get_horde():
             x, y = zombie.get_pos()
+            # print(x,y)
             board[x, y] = 3
+        # print(board)
         return board.tolist()
     
     def encode_pos_agent(self):

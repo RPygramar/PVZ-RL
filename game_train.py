@@ -9,9 +9,13 @@ import pvz_env
 def convert_state(state):
     """ Convert state representation to a hashable type (tuples). """
     board = tuple(map(tuple, state['board']))
-    position = tuple(map(tuple, state['position']))
-    suns = tuple(state['suns'])
-    return ('board', board), ('position', position), ('suns', suns)
+    #position = tuple(map(tuple, state['position']))
+    #suns = tuple(state['suns'])
+    return ('board', board)#, ('position', position)#, ('suns', suns)
+
+def check_pair_existence(q_table, state, action):
+    """ Check if the state-action pair exists in the Q-table. """
+    return (state, action) in q_table
 
 def run_q(episodes, is_training=True, render=False):
     env = gym.make('pvz-rl', render_mode='human' if render else None)
@@ -53,10 +57,7 @@ def run_q(episodes, is_training=True, render=False):
             new_state = convert_state(new_state)
             
             if is_training:
-                best_next_action = np.max(q_table.get(new_state, np.zeros(action_space)))
-                td_target = reward + discount_factor * best_next_action
-                td_error = td_target - q_table.get(state + (action,), 0.0)
-                q_table[state + (action,)] = q_table.get(state + (action,), 0.0) + learning_rate * td_error
+                q_table[(state, action)] = q_table.get((state, action), 0) + learning_rate * (reward + discount_factor * np.max([q_table.get((new_state, a), 0) for a in range(action_space)]) - q_table.get((state, action), 0))
                 
             state = new_state
             total_reward += reward
@@ -65,6 +66,8 @@ def run_q(episodes, is_training=True, render=False):
                 print(f'---- EPISODE {episode + 1} ----')
                 print('total_reward: ', total_reward)
                 print('Epsilon: ',epsilon)
+                print('Step Count:', step_count)
+                print('Final State:', state)
                 steps_per_episode[episode] = step_count
 
         epsilon = max(epsilon - 1/episodes, 0)
@@ -84,5 +87,5 @@ def run_q(episodes, is_training=True, render=False):
             pkl.dump(q_table, f)
 
 if __name__ == '__main__':
-    run_q(1000, is_training=True, render=True)
+    run_q(500, is_training=True, render=True)
     run_q(1, is_training=False, render=True)

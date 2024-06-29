@@ -27,8 +27,6 @@ class Pea_Gui(pygame.sprite.Sprite):
     def draw(self):
         if self.hit_target:
             self._ready_to_die = True
-        else:
-            self.rect.x += 15
         self.__screen.blit(self.__sprite_list[self.__index], (self.rect.x, self.rect.y))
     
 

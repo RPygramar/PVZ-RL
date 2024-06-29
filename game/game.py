@@ -20,15 +20,18 @@ class Game:
         self.screen = pygame.display.set_mode(screen_size)
         self.background = (60, 60, 60)
         self.fps = fps
+        self.frame_rate = 144
 
         self.grid = Grid(screen=self.screen, cell_size=80)
-        self.agent = Agent(screen=self.screen, grid=self.grid)
+        self.agent = Agent(screen=self.screen, grid=self.grid, framerate=self.frame_rate)
         
-        self.horde = Horde(self.screen, self.grid)
+        self.horde = Horde(self.screen, self.grid, framerate=self.frame_rate)
 
         self.regen_time = pygame.time.get_ticks()
 
         self.suns = []
+
+        self.last_time = pygame.time.get_ticks()
     
     def reset(self, seed=None):
         self.grid = Grid(screen=self.screen, cell_size=80)
@@ -41,6 +44,10 @@ class Game:
         self.suns = []
 
     def start_game(self):
+        current_time = pygame.time.get_ticks()
+        delta_time = current_time - self.last_time
+        self.last_time = current_time
+
         self.screen.fill(self.background)
 
         for event in pygame.event.get():
@@ -50,9 +57,9 @@ class Game:
 
         self.horde.update()
 
-        self.update()
+        self.update(delta_time)
 
-        self.draw()
+        self.draw(delta_time)
 
         pygame.display.flip()
 
@@ -61,15 +68,15 @@ class Game:
         self.clock.tick(self.fps)
         # print(self.fps)
 
-    def update(self):
+    def update(self, delta_time):
         self.regen_suns()
-        self.agent.plants_behavior(self.horde.get_horde())
+        self.agent.plants_behavior(self.horde.get_horde(), delta_time)
         self.agent.remove_dead_plants()
         if self.check_zombies_reached_limit():
             self.reset()
         
 
-    def draw(self):
+    def draw(self, delta_time):
         self.grid.draw()
         for plant in self.agent.get_plants_owned():
             plant.draw()
@@ -79,12 +86,12 @@ class Game:
                 self.horde.remove_zombie(zombie)
                 self.agent.add_zombies_killed(zombie=zombie)
             if zombie.rect.collidelist(self.agent.get_plants_owned()) >= 0:
-                zombie.eat_plant(self.agent.get_plants_owned()[zombie.rect.collidelist(self.agent.get_plants_owned())])
+                zombie.eat_plant(self.agent.get_plants_owned()[zombie.rect.collidelist(self.agent.get_plants_owned())], delta_time)
                 # print(self.agent.get_plants_owned()[zombie.rect.collidelist(self.agent.get_plants_owned())].get_health())
             else:
                 zombie.set_eating(boolean=False)
             zombie.draw()
-            zombie.update()
+            zombie.update(delta_time)
 
         for sun in self.agent.existing_suns:
             if sun.time_to_die:
@@ -93,6 +100,7 @@ class Game:
             sun.draw()
 
         for element in self.agent.get_all_elements():
+            element.update(delta_time)
             element.draw()
     
     def regen_suns(self):

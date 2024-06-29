@@ -13,17 +13,22 @@ class AgentAction(Enum):
     COLLECT_SUN = 6
     
 class Agent:
-    def __init__(self, screen, grid):
+    def __init__(self, screen, grid, framerate = 60):
         self.__grid = grid
         self.__screen = screen
-        self.__suns = 100
+        self.__suns = 1000
         self.__pos = (0,0)
         self.__plants_owned = []
         self.__plants = {0 : Peashooter(screen=screen, grid=grid, pos=(-1,-1)), 1 : Sunflower(screen=screen, grid=grid, pos=(-1,-1))}
+        self.__framerate = framerate
 
         self.existing_suns = []
 
         self.__zombies_killed = []
+
+        
+        self.initial_plants_value = 0
+        self.final_plants_value = 0
         
     def perform_action(self, action:AgentAction) -> bool:
 
@@ -44,9 +49,9 @@ class Agent:
         elif action == AgentAction.PLACE_PEASHOOTER:
             self.place_plant(0)
             return 4
-        elif action == AgentAction.PLACE_SUNFLOWER:
-            self.place_plant(1)
-            return 5
+        # elif action == AgentAction.PLACE_SUNFLOWER:
+        #     self.place_plant(1)
+        #     return 5
         elif action == AgentAction.COLLECT_SUN:
             self.__collect_suns(suns=self.existing_suns)
             return 6
@@ -62,9 +67,11 @@ class Agent:
     
     def place_plant(self, key):
         if self.__suns >= self.__plants[key].get_sun_cost() and not self.__grid.is_planted((self.__pos[0],self.__pos[1])):
+            self.initial_plants_value = len(self.__plants_owned)
             plant = self.__create_plant(key)
-            self.__grid.set_on_grid(self.__pos, plant)
             self.__plants_owned.append(plant)
+            self.final_plants_value = len(self.__plants_owned)
+            self.__grid.set_on_grid(self.__pos, plant)
             self.__suns -= plant.get_sun_cost()
 
     def move_left(self):
@@ -91,17 +98,17 @@ class Agent:
             self.__pos[1] += 1
             self.__pos = tuple(self.__pos)
 
-    def plants_behavior(self, zombies : list):
+    def plants_behavior(self, zombies : list, delta_time):
         for plant in self.__plants_owned:
             if plant.name == 'peashooter':
                 if plant.line_of_shoot.collidelist(zombies) >= 0:
-                    plant.action()
+                    plant.action(delta_time)
                 for pea in plant.get_peas_shoot():
                     if pea.rect.collidelist(zombies) >= 0:
                         zombies[pea.rect.collidelist(zombies)].damage(pea.get_attack_damage())
                         pea.hitted_target()
             if plant.name == 'sunflower':
-                plant.action()
+                plant.action(delta_time)
                     
     def get_all_elements(self):
         list_elements = []
@@ -124,22 +131,23 @@ class Agent:
 
     def __create_plant(self, key):
         if key == 0:
-            return Peashooter(screen=self.__screen, grid=self.__grid, pos=self.get_pos())
+            return Peashooter(screen=self.__screen, grid=self.__grid, pos=self.get_pos(),framerate=self.__framerate)
         elif key == 1:
-            return Sunflower(screen=self.__screen, grid=self.__grid, pos=self.get_pos())
+            return Sunflower(screen=self.__screen, grid=self.__grid, pos=self.get_pos(),framerate=self.__framerate)
             
     def __collect_suns(self, suns : list):
         if suns:
             for sun in suns:
-                if self.__suns < 2000:
-                    self.__suns += sun.get_value()
+                self.__suns += sun.get_value()
                 self.existing_suns.remove(sun)
 
     def remove_dead_plants(self):
+        self.initial_plants_value = len(self.get_plants_owned())
         dead_plants = [plant for plant in self.__plants_owned if plant.get_health() <= 0]
         for dead_plant in dead_plants:
             self.__plants_owned.remove(dead_plant)
             self.__grid.remove_from_grid(dead_plant.get_pos())
+        self.final_plants_value = len(self.get_plants_owned())
 
     def get_zombies_killed(self) -> list:
         return self.__zombies_killed

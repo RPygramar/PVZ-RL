@@ -4,13 +4,14 @@ import time
 from plants.peashooter.pea_gui import Pea_Gui
 
 class Pea(Pea_Gui):
-    def __init__(self, screen, grid, pos):
+    def __init__(self, screen, grid, pos, framerate = 60):
         super().__init__(screen, grid, pos)
         self.__attack_damage = 20
 
         self.__screen = screen
         self.__grid = grid
         self.__pos = pos
+        self.__framerate = framerate
 
         self.last_time = time.time()
     
@@ -26,6 +27,10 @@ class Pea(Pea_Gui):
     
     def hitted_target(self):
         self.hit_target = True
+
+    def update(self, delta_time):
+        move_distance = 15 * (delta_time / 50) * self.__framerate  # delta_time is in milliseconds
+        self.rect.x += move_distance
 
     def is_ready_to_die(self):
         self.check_death()

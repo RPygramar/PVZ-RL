@@ -6,19 +6,22 @@ from plants.plant import Plant
 
 
 class Peashooter(Plant, Peashooter_Gui):
-    def __init__(self, screen, grid, pos):
+    def __init__(self, screen, grid, pos, framerate = 60):
         super().__init__(screen, grid, pos)
         self.__health = 300
         self.__attack_damage = 20
-        self.__ticks_before_attack = 1400
+        self.__ticks_before_attack = 1500
         self.__sun_cost = 100
         self.name = 'peashooter'
 
         self.__screen = screen
         self.__grid = grid
         self.__pos = pos
+        self.__framerate = framerate
 
-        self.__last_shot_time = pygame.time.get_ticks()
+        self.__last_shot_time = 0
+        self.__ticks_before_attack = 1000  # example value, set as needed
+        self.__accumulated_time = 0
 
         self.__list_peas = []
 
@@ -37,11 +40,16 @@ class Peashooter(Plant, Peashooter_Gui):
     def get_sun_cost(self):
         return self.__sun_cost
     
-    def action(self):
-        current_time = pygame.time.get_ticks()
-        if current_time - self.__last_shot_time >= self.__ticks_before_attack:
-            self.__last_shot_time = current_time
-            self.__list_peas.append(Pea(self.__screen, self.__grid,self.__pos))
+    def action(self, delta_time):
+        self.__accumulated_time += delta_time* self.__framerate
+        if self.__accumulated_time >= self.__ticks_before_attack / self.__framerate:
+            self.__last_shot_time = pygame.time.get_ticks()
+            self.__accumulated_time -= self.__ticks_before_attack
+            self.__list_peas.append(Pea(self.__screen, self.__grid, self.__pos))
+        # current_time = pygame.time.get_ticks()
+        # if current_time - self.__last_shot_time >= self.__ticks_before_attack:
+        #     self.__last_shot_time = current_time
+        #     self.__list_peas.append(Pea(self.__screen, self.__grid,self.__pos))
 
     def damage(self, value):
         self.__health -= value
